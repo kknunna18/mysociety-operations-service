@@ -1,0 +1,43 @@
+server:
+  port: 8084
+  servlet:
+    context-path: /api/v1
+spring:
+  application:
+    name: mysociety-operations-service
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/mysociety}
+    username: ${DATABASE_USERNAME:mysociety}
+    password: ${DATABASE_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: mysociety
+    open-in-view: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: mysociety-identity
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  tracing:
+    sampling:
+      probability: 1.0
+operations:
+  security:
+    jwt-hs256-secret: ${JWT_HS256_SECRET}
+  sla-hours:
+    LOW: 72
+    MEDIUM: 48
+    HIGH: 24
+    CRITICAL: 4
