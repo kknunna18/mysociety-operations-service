@@ -3,6 +3,7 @@ package com.mysociety.operations;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import javax.crypto.spec.SecretKeySpec;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 import org.springframework.core.convert.converter.Converter;
@@ -27,6 +28,7 @@ record TenantContext(UUID userId, UUID societyId, Set<String> roles, Set<String>
                     List.of(new OAuth2Error("invalid_token", "sub and society_id must be UUIDs", null)));
         }
     }
+
     private static Set<String> claims(Jwt jwt, String claim) {
         List<String> values = jwt.getClaimAsStringList(claim);
         return values == null ? Set.of() : Set.copyOf(values);
@@ -34,10 +36,13 @@ record TenantContext(UUID userId, UUID societyId, Set<String> roles, Set<String>
 }
 
 final class TenantContexts {
-    private TenantContexts() {}
+    private TenantContexts() {
+    }
+
     static TenantContext current() {
         var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
-        if (!(auth instanceof JwtAuthenticationToken token)) throw new IllegalStateException("JWT authentication is required");
+        if (!(auth instanceof JwtAuthenticationToken token))
+            throw new IllegalStateException("JWT authentication is required");
         return TenantContext.from(token.getToken());
     }
 }
@@ -48,12 +53,14 @@ final class TenantContexts {
 class SecurityConfiguration {
     @Bean
     JwtDecoder jwtDecoder(@Value("${operations.security.jwt-hs256-secret}") String secret) {
-        if (secret == null || secret.length() < 32) throw new IllegalStateException("JWT_HS256_SECRET must be at least 32 characters");
+        if (secret == null || secret.length() < 32)
+            throw new IllegalStateException("JWT_HS256_SECRET must be at least 32 characters");
         NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(
                 new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256")).build();
         decoder.setJwtValidator(JwtValidators.createDefaultWithIssuer("mysociety-identity"));
         return decoder;
     }
+
     @Bean
     SecurityFilterChain security(HttpSecurity http, Converter<Jwt, AbstractAuthenticationToken> converter) throws Exception {
         return http.csrf(csrf -> csrf.disable())
@@ -62,6 +69,7 @@ class SecurityConfiguration {
                 .oauth2ResourceServer(oauth -> oauth.jwt(jwt -> jwt.jwtAuthenticationConverter(converter)))
                 .build();
     }
+
     @Bean
     Converter<Jwt, AbstractAuthenticationToken> jwtAuthenticationConverter() {
         return jwt -> {
