@@ -22,11 +22,19 @@ record TenantContext(UUID userId, UUID societyId, Set<String> roles, Set<String>
         try {
             UUID user = UUID.fromString(jwt.getSubject());
             UUID society = UUID.fromString(jwt.getClaimAsString("society_id"));
-            return new TenantContext(user, society, claims(jwt, "roles"), claims(jwt, "permissions"), CorrelationIds.current());
+            return new TenantContext(user, society, claims(jwt, "roles"), permissions(jwt), CorrelationIds.current());
         } catch (IllegalArgumentException | NullPointerException e) {
             throw new JwtValidationException("Required tenant claims are invalid",
                     List.of(new OAuth2Error("invalid_token", "sub and society_id must be UUIDs", null)));
         }
+    }
+
+    // Identity service issues permission codes as a space-separated "scope" claim.
+    private static Set<String> permissions(Jwt jwt) {
+        Set<String> result = new HashSet<>(claims(jwt, "permissions"));
+        String scope = jwt.getClaimAsString("scope");
+        if (scope != null && !scope.isBlank()) result.addAll(Arrays.asList(scope.trim().split("\\s+")));
+        return Set.copyOf(result);
     }
 
     private static Set<String> claims(Jwt jwt, String claim) {
