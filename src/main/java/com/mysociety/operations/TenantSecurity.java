@@ -72,12 +72,15 @@ class SecurityConfiguration {
 
     @Bean
     Converter<Jwt, AbstractAuthenticationToken> jwtAuthenticationConverter() {
-        return jwt -> {
-            TenantContext context = TenantContext.from(jwt);
-            var authorities = new ArrayList<org.springframework.security.core.GrantedAuthority>();
-            context.permissions().forEach(p -> authorities.add(new org.springframework.security.core.authority.SimpleGrantedAuthority("PERMISSION_" + p)));
-            context.roles().forEach(r -> authorities.add(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_" + r)));
-            return new JwtAuthenticationToken(jwt, authorities, jwt.getSubject());
+        return new Converter<Jwt, AbstractAuthenticationToken>() {
+            @Override
+            public AbstractAuthenticationToken convert(Jwt jwt) {
+                TenantContext context = TenantContext.from(jwt);
+                var authorities = new ArrayList<org.springframework.security.core.GrantedAuthority>();
+                context.permissions().forEach(p -> authorities.add(new org.springframework.security.core.authority.SimpleGrantedAuthority("PERMISSION_" + p)));
+                context.roles().forEach(r -> authorities.add(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_" + r)));
+                return new JwtAuthenticationToken(jwt, authorities, jwt.getSubject());
+            }
         };
     }
 }

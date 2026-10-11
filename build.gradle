@@ -27,6 +27,8 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
     runtimeOnly 'org.postgresql:postgresql'
+    // H2 for local in-memory fallback datasource
+    runtimeOnly 'com.h2database:h2'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'org.testcontainers:junit-jupiter'
