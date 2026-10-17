@@ -1,0 +1,18 @@
+spring:
+  config:
+    activate:
+      on-profile: local
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/mysociety}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+logging:
+  level:
+    com.mysociety.operations: INFO
+
+# Dev fallback secret for local profile only — DO NOT COMMIT TO PRODUCTION
+operations:
+  security:
+    # 32+ character HMAC secret for HS256 JWT validation in local dev
+    jwt-hs256-secret: ${JWT_HS256_SECRET:8fK9xP2mQ7vL1zN4rT6yU0aS3dH5jW8c}
