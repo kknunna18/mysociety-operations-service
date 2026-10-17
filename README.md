@@ -4,6 +4,14 @@ Spring Boot 3 / Java 21 API for complaints and work orders. It uses the canonica
 `mysociety` schema from `identity-service`; Hibernate is validation-only and no
 tables are created or migrated by this service.
 
+## Database schema
+
+The versioned Operations-only PostgreSQL schema is in
+[`database/migrations/V1__operations_schema.sql`](database/migrations/V1__operations_schema.sql).
+See [`database/README.md`](database/README.md) for application instructions and
+the cross-service UUID validation contract. Hibernate remains validation-only;
+this service does not integrate a migration runner or change `ddl-auto=validate`.
+
 ## Run
 
 Copy `.env.example` to `.env`, load its environment variables, then run:
